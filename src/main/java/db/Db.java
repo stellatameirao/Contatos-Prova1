@@ -112,6 +112,8 @@ public class Db {
 	 */
 
 	// CRUD READ
+		
+	//Encontrar todos os registros
 	public ArrayList<AulaDto> findAll() {
 			PreparedStatement ps = null;
 			ResultSet rs = null;
@@ -137,4 +139,137 @@ public class Db {
 		    }
 	}
 	
+	
+	//Encontrar os registros do Id selecionado
+	public AulaDto findById(String id) {
+
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		String query = "SELECT ID, COD_DISCIPLINA, ASSUNTO, DURACAO, DATA, HORARIO FROM AULA "
+				+ "WHERE ID = ?";
+
+		try {
+			ps = connection.prepareStatement(query);
+			ps.setString(1, id);
+
+			rs = ps.executeQuery();
+
+			if(rs.next()) {
+				Aula aula = instantiateAula(rs);
+				AulaDto aulaDto = new AulaDto(aula);
+				return aulaDto;
+			}
+
+			return null;
+
+		} catch (SQLException e) {
+			throw new DbException(e.getMessage());
+		}
+		finally {
+			closeStatement(ps);
+			closeResultSet(rs);
+		}
+	}
+	
+	// CRUD CREATE
+	//Inserir um registro na tabela
+	public void create(AulaDto dto) {
+		PreparedStatement pst = null;
+		String query = "INSERT INTO AULA (COD_DISCIPLINA, ASSUNTO, DURACAO, DATA, HORARIO) "
+				+ "VALUES (?,?,?,?,?)";
+		try {
+			 Aula aula = new Aula(dto);
+
+		        pst = this.connection.prepareStatement(query);
+
+		        pst.setInt(1, aula.getCodDisciplina());
+		        pst.setString(2, aula.getAssunto());
+		        pst.setInt(3, aula.getDuracao());
+		        pst.setString(4, aula.getData());
+		        pst.setString(5, aula.getHorario());
+		        pst.execute();
+		} catch (SQLException e) {
+			throw new DbException(e.getMessage());
+		} finally {
+			closeStatement(pst);
+		}
+	}
+	
+	// CRUD DELETE
+	//Deletar todos os registros
+	public void deleteAll() {
+		String query = "DELETE FROM AULA";
+		Statement st = null;
+		try {
+			st = this.connection.createStatement();
+			st.execute(query);
+		} catch (SQLException e) {
+			e.getStackTrace();
+			throw new DbException(e.getMessage());
+		}
+		finally {
+			closeStatement(st);
+		}
+	}
+
+	// CRUD DELETE
+	//Deletar um registro em específico
+	public void delete(String id) {
+		String query = "DELETE FROM AULA WHERE ID = ?";
+		PreparedStatement pst = null;
+		try {
+			pst = this.connection.prepareStatement(query);
+			pst.setString(1, id);
+			pst.execute();
+		} catch (SQLException e) {
+			throw new DbException(e.getMessage());
+		} finally {
+	        closeStatement(pst);
+	    }
+	}
+	
+	// CRUD UPDATE
+	public void update(AulaDto dto) {
+		PreparedStatement ps = null;
+		String query = "UPDATE AULA SET "
+				+ "COD_DISCIPLINA = ?, ASSUNTO = ?, DURACAO = ?, DATA = ?, HORARIO = ? "
+				+ "WHERE ID = ?";
+
+		 try {
+		        ps = this.connection.prepareStatement(query);
+		        ps.setInt(1, Integer.parseInt(dto.codDisciplina)); 
+		        ps.setString(2, dto.assunto); 
+		        ps.setInt(3, Integer.parseInt(dto.duracao)); 
+		        ps.setString(4, dto.data);
+		        ps.setString(5, dto.horario);
+		        ps.setString(6, dto.id);
+		        ps.executeUpdate();
+		    } catch (SQLException e) {
+		        e.printStackTrace();
+		        throw new DbException(e.getMessage());
+		    } finally {
+		        closeStatement(ps);
+		    }
+		}
+
+	//Método criado para poder instanciar a classe Aula de forma mais organizada, sem ter que fazer isso em cada método
+	private Aula instantiateAula(ResultSet rs) throws SQLException{
+		Aula aula = new Aula();
+		aula.setAssunto(rs.getString("ASSUNTO"));
+		aula.setCodDisciplina(rs.getInt("COD_DISCIPLINA"));
+		aula.setData(rs.getString("DATA"));
+		aula.setDuracao(rs.getInt("DURACAO"));
+		aula.setHorario(rs.getString("HORARIO"));
+		aula.setId(rs.getLong("ID"));
+		return aula;
+	}
+
+	/*
+	 * PARA EFEITO DE TESTES
+	 */
+
+	public void reset() {
+		this.deleteAll();
+	}
+
 }
