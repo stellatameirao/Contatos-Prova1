@@ -106,48 +106,47 @@ public class ControllerServlet extends HttpServlet {
         db.create(dto);
     }
 	
-	private void delete(HttpServletRequest request) {
-		/*
-		 * 	Recupere (de request) o parâmetro id e o use para remover a aula do banco de dados.
-		 */
-	}
-
-	private void getAula(HttpServletRequest request, HttpServletResponse response) {
-		/*
-		 *  Este método recupera um dto a partir do parâmetro id.
-		 *  Em seguida, cria um json 'manualmente' e o envia como resposta da requisição.
-		 */
-		String id = request.getParameter("id");
-		Db db = Db.getInstance();
-		AulaDto dto = db.findById(id);
-		response.setContentType("application/json");
-		StringBuilder stb = new StringBuilder();
-		stb.append("{\"id\": \"").append(id).append("\",").append("\"disciplina\": \"").append(dto.disciplina)
-				.append("\",").append("\"codDisciplina\": \"").append(dto.codDisciplina).append("\",")
-				.append("\"assunto\": \"").append(dto.assunto).append("\"").append("\"duracao\": \"")
-				.append(dto.duracao).append("\"").append("\"data\": \"").append(dto.data).append("\"")
-				.append("\"horario\": \"").append(dto.horario).append("\"").append("}");
-		String json = stb.toString();
-		try {
-			response.getWriter().write(json);
-		} catch (IOException e) {
-			// TODO: o que fazer de deu errado
-		}
+	private void delete(HttpServletRequest request, Db db) {
+        String id = request.getParameter("id");
+        db.delete(id);
+    }
+	//!!add try catch, modificar append e TUDO(não tem como resolver)
+	private void getAula(HttpServletRequest request, HttpServletResponse response, Db db) throws IOException {
+	    String id = request.getParameter("id");
+	    AulaDto dto = db.findById(id);
+	    response.setContentType("application/json");
+	    StringBuilder stb = new StringBuilder();
+	    stb.append("{\"id\": \"").append(id).append("\",")
+	       .append("\"disciplina\": \"").append(dto.disciplina).append("\",")
+	       .append("\"codDisciplina\": \"").append(dto.codDisciplina).append("\",")
+	       .append("\"assunto\": \"").append(dto.assunto).append("\",")
+	       .append("\"duracao\": \"").append(dto.duracao).append("\",")
+	       .append("\"data\": \"").append(dto.data).append("\",")
+	       .append("\"horario\": \"").append(dto.horario).append("\"}");
+	    String json = stb.toString();
+	    try {
+	        response.getWriter().write(json);
+	    } catch (IOException e) {
+	        response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+	        response.getWriter().write("Erro ao processar a requisição: " + e.getMessage());
+	    }
 	}
 	
-	private void update(HttpServletRequest request) {
-		/*
-		 * 	Este método faz atualização do registro de uma aula.
-		 * 	Primeiro, recupere (de request) os parâmetros enviados:
-		 * 	- id
-		 * 	- codDisciplina,
-		 * 	- assunto,
-		 * 	- duracao,
-		 * 	- data,
-		 * 	- horario
-		 * 	Depois crie um dto com eles, e o envie ao banco de dados.
-		 */
+	//!Ultiliza http
+	private void update(HttpServletRequest request, Db db) {
+        String id = request.getParameter("id");
+        String codDisciplina = request.getParameter("codDisciplina");
+        String assunto = request.getParameter("assunto");
+        String duracao = request.getParameter("duracao");
+        String data = request.getParameter("data");
+        String horario = request.getParameter("horario");
+        AulaDto dto = new AulaDto();
+        dto.id = id;
+        dto.codDisciplina = codDisciplina;
+        dto.assunto = assunto;
+        dto.duracao = duracao;
+        dto.data = data;
+        dto.horario = horario;
+        db.update(dto);
 	}
-	
-	
 }
