@@ -3,6 +3,8 @@ package controller;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
 import db.Db;
@@ -48,11 +50,12 @@ public class ControllerServlet extends HttpServlet {
 			RequestDispatcher rd = request.getRequestDispatcher("edit.jsp");
 			rd.forward(request, response);
 		}else {
-			ArrayList<AulaDto> dto = db.findAll();
-			out.print(dto);
+//			ArrayList<AulaDto> dto = db.findAll();
+			out.print(db.findAll());
 		}
 	}
 
+	//!!passando o db por argumento
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         HttpSession session = request.getSession();
@@ -80,6 +83,7 @@ public class ControllerServlet extends HttpServlet {
         }
     }
 	
+	//!!Lista de DTO
 	private void poeDadosNaSessao(HttpSession session) throws ServletException {
         // Consulta o banco de dados para obter uma lista de todos os registros
         Db db = Db.getInstance();
@@ -88,6 +92,7 @@ public class ControllerServlet extends HttpServlet {
 		session.setAttribute("lista", lista);
     }
 
+	//!!Não recebe http por parametro
 	private void create(HttpServletRequest request, Db db) {
         String codDisciplina = request.getParameter("codDisciplina");
         String assunto = request.getParameter("assunto");
@@ -105,11 +110,12 @@ public class ControllerServlet extends HttpServlet {
 
         db.create(dto);
     }
-	
+
 	private void delete(HttpServletRequest request, Db db) {
         String id = request.getParameter("id");
         db.delete(id);
     }
+
 	//!!add try catch, modificar append e TUDO(não tem como resolver)
 	private void getAula(HttpServletRequest request, HttpServletResponse response, Db db) throws IOException {
 	    String id = request.getParameter("id");
@@ -140,6 +146,7 @@ public class ControllerServlet extends HttpServlet {
         String duracao = request.getParameter("duracao");
         String data = request.getParameter("data");
         String horario = request.getParameter("horario");
+
         AulaDto dto = new AulaDto();
         dto.id = id;
         dto.codDisciplina = codDisciplina;
@@ -147,6 +154,8 @@ public class ControllerServlet extends HttpServlet {
         dto.duracao = duracao;
         dto.data = data;
         dto.horario = horario;
+
         db.update(dto);
 	}
+
 }

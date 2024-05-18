@@ -2,20 +2,30 @@
 // 		EVENTOS
 
 // RESET
-reset = function() {
+reset = function(id) {
+	// Aqui, você faz uma requisição AJAX POST a ControllerServlet e
+   // envia a chave 'op' valendo 'DELETE'. Envie, do mesmo modo, o parâmetro id
+   // Se a requisição for bem sucedida, execute atualizaSessao() e
+   // window.location.href = "/prova1"
+   // Se não for bem sucedida, decida o que fazer
 	let req = new XMLHttpRequest();
 	req.open("POST", "ControllerServlet", true);
 	req.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 	req.onreadystatechange = () => {
-		if (req.readyState == 4 && req.status == 200) { 
+		if (req.readyState == 4) {
+			if (req.status == 200) {  
 			   atualizaSessao();
-			   expoeListaContatos();
-			}else {
-				console.error("Ocorreu um erro na requisição: ", req.status);
-				}
-	   }
-		req.send("op=RESET");
+			   window.location.href = "/prova1";
+			} else {
+				console.error("Erro na requisição: ", req.status);
+					}
+			}
+	}
+	req.send("op=RESET");
 }
+
+
+
 
 // NOVA AULA
 novaAula = function() {
@@ -61,17 +71,14 @@ enviarNovaAula = function() {
 	let parametros = "op=CREATE&data=" + encodeURIComponent(data) + "&horario=" + encodeURIComponent(horario) + "&duracao=" + encodeURIComponent(duracao) + "&codDisciplina=" + encodeURIComponent(codDisciplina) + "&assunto=" + encodeURIComponent(assunto);
    	req.send(parametros);
 }
-
-// ENVIA CONTEÚDO EM EDIÇÃO
 enviarEdit = function() {
-// obtém os valores a partir do formulário
-    let id = document.getElementById('id').innerHTML;
+    // obtém os valores a partir do formulário
+    let id = document.getElementById('register-id').value;
     let data = document.getElementById('data-id').value;
     let horario = document.getElementById('hora-id').value;
     let duracao = document.getElementById('dur-id').value;
     let codDisciplina = document.getElementById('disc-id').value;
     let assunto = document.getElementById('ass-id').value;
-
     // Criar uma nova instância do objeto XMLHttpRequest
     let xhr = new XMLHttpRequest();
 
@@ -101,29 +108,34 @@ enviarEdit = function() {
 }
 
 
-// DELETA UMA AULA
 deleta = function(id) {
-let req = new XMLHttpRequest();
-	req.open("POST", "ControllerServlet", true);
-	req.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-	req.onreadystatechange = () => {
-		if (req.readyState == 4 && req.status == 200) {
-			atualizaSessao();
-			window.location.href = "/prova1";
-		} else {
+    let req = new XMLHttpRequest();
+    req.open("POST", "ControllerServlet", true);
+    req.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+
+    req.onreadystatechange = function() {
+        if (req.readyState == 4 && req.status == 200) {
+            // Se a requisição for bem-sucedida, atualize a sessão
+            atualizaSessao();
+            // Redirecione para a página desejada
+            window.location.href = "/prova1";
+        } else{
+			
+		}
+    };
+
+    // Apenas envie a requisição
+    req.send("op=DELETE&id=" + id);
 }
-			alert("Ocorreu um erro ao excluir o item.");
-					}
-	}
-	req.send("op=DELETE&id=" + id);
-}
+
+
+
 const atualizaSessao = function() {
 	let req = new XMLHttpRequest();
 	req.open("POST", "ControllerServlet", true);
 	req.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 	req.onreadystatechange = () => {
 		if (req.readyState == 4 && req.status == 200) {
-			expoeListaContatos();
 			console.log("A sessão foi atualizada com sucesso.");
 		} else {
 			console.log("Ocorreu um erro ao tentar atualizar a sessão.");
@@ -132,12 +144,12 @@ const atualizaSessao = function() {
 	req.send("op=START_SESSION");
 }
 
+
+
 // ============================================================
 // 			VALIDAÇÕES
 
 validaNovaAula = function(data, horario, duracao, codDisciplina, assunto) {
-    // Examine os valores dos parâmetros deste método e decida se estão
-    // ou não validados. Este 'return true' provavelmente será alterado, não?
     // Verificar se todos os campos são preenchidos
     if (!data || !horario || !duracao || !codDisciplina || !assunto) {
 	document.getElementById('msg-vazio').style.display = 'block';
@@ -167,6 +179,11 @@ validaNovaAula = function(data, horario, duracao, codDisciplina, assunto) {
     // Se todos os critérios de validação forem atendidos, retornar true
     return true;
 }
+
+
+
+
+
 
 // ===================================================================================
 // 		INICIALIZA O PROCESSAMENTO

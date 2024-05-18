@@ -18,6 +18,7 @@
 		<div class="btn-nav" onclick="reset()">RESET</div>
 	</nav>
 	<div class="container-geral">
+		
 		<%
 		HttpSession sessao = request.getSession();
 		// Aqui você vai precisar recuperar dados na sessão.
